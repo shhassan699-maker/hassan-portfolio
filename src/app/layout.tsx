@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import { Syne, DM_Mono, Instrument_Serif } from 'next/font/google'
-import { ThemeProvider } from 'next-themes'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import './globals.css'
@@ -46,15 +45,13 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" data-theme="dark" suppressHydrationWarning>
       <body
         className={`${syne.variable} ${dmMono.variable} ${instrumentSerif.variable}`}
       >
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-          <Navbar />
-          {children}
-          <Footer />
-        </ThemeProvider>
+        <Navbar />
+        {children}
+        <Footer />
       </body>
     </html>
   )
