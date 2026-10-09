@@ -1,143 +1,245 @@
-'use client'
-
-import { useEffect } from 'react'
-
-interface Project {
-  id: number
-  icon: string
-  name: string
-  type: string
-  description: string
-  tags: string[]
-  details: string
-  features: string[]
-}
-
-interface Props {
-  project: Project | null
-  onClose: () => void
-}
-
-export default function ProjectModal({ project, onClose }: Props) {
+"use client";
+import { useEffect, useRef, useState } from "react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, X } from "lucide-react";
+import { projects, type Project } from "@/data/portfolio";
+export default function ProjectModal({
+  project: initialProject,
+}: {
+  project: Project;
+}) {
+  const initialIndex = projects.findIndex((item) => item.id === initialProject.id);
+  const [selected, setSelected] = useState(initialIndex);
+  const [announcement, setAnnouncement] = useState("");
+  const project = projects[selected];
+  const dialog = useRef<HTMLDialogElement>(null);
+  const body = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
+  const previousOverflow = useRef("");
+  const exitAnimation = useRef<Animation | null>(null);
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-    }
-    document.addEventListener('keydown', handleKey)
-    return () => document.removeEventListener('keydown', handleKey)
-  }, [onClose])
-
-  useEffect(() => {
-    document.body.style.overflow = project ? 'hidden' : ''
+    const element = dialog.current;
+    const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const finish = () => {
+      if (preference.matches) exitAnimation.current?.finish();
+    };
+    preference.addEventListener("change", finish);
     return () => {
-      document.body.style.overflow = ''
+      preference.removeEventListener("change", finish);
+      exitAnimation.current?.cancel();
+      if (element?.open)
+        document.body.style.overflow = previousOverflow.current;
+    };
+  }, []);
+  function close() {
+    const element = dialog.current;
+    if (!element?.open || exitAnimation.current) return;
+    if (
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      !element.animate
+    ) {
+      element.close();
+      return;
     }
-  }, [project])
-
-  if (!project) return null
-
+    const currentStyle = getComputedStyle(element);
+    const duration =
+      parseFloat(currentStyle.getPropertyValue("--motion-state")) || 240;
+    const easing = currentStyle.getPropertyValue("--ease").trim();
+    element.dataset.closing = "true";
+    const animation = element.animate(
+      [
+        { opacity: currentStyle.opacity, transform: currentStyle.transform },
+        { opacity: 0, transform: "translateY(8px)" },
+      ],
+      { duration, easing, fill: "forwards" },
+    );
+    exitAnimation.current = animation;
+    animation.finished
+      .then(() => {
+        element.close();
+        animation.cancel();
+        exitAnimation.current = null;
+      })
+      .catch(() => {
+        exitAnimation.current = null;
+      });
+  }
+  function open() {
+    setSelected(initialIndex);
+    setAnnouncement("");
+    if (body.current) body.current.scrollTop = 0;
+    previousOverflow.current = document.body.style.overflow;
+    dialog.current?.showModal();
+    document.body.style.overflow = "hidden";
+  }
+  function browse(direction: -1 | 1) {
+    const index = (selected + direction + projects.length) % projects.length;
+    setSelected(index);
+    setAnnouncement(
+      `${projects[index].name}. Project ${index + 1} of ${projects.length}.`,
+    );
+    if (body.current) body.current.scrollTop = 0;
+  }
+  function cleanup() {
+    dialog.current?.removeAttribute("data-closing");
+    document.body.style.overflow = previousOverflow.current;
+    trigger.current?.focus({ preventScroll: true });
+  }
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-6 backdrop-blur-2xl"
-      onClick={onClose}
-      style={{
-        backgroundColor: 'rgba(0, 0, 0, 0.85)',
-      }}
-    >
-      <div
-        className="relative border rounded-3xl max-w-2xl w-full max-h-[80vh] overflow-y-auto p-10 max-md:p-6 animate-[scaleIn_0.3s_ease]"
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          backgroundColor: 'var(--bg2)',
-          borderColor: 'var(--border)',
-          animation: 'scaleIn 0.3s ease',
+    <>
+      <button
+        className="text-action"
+        ref={trigger}
+        onClick={open}
+        aria-haspopup="dialog"
+      >
+        Explore testing approach
+        <ArrowUpRight size={16} aria-hidden="true" />
+      </button>
+      <dialog
+        ref={dialog}
+        className="project-dialog"
+        aria-labelledby={`${initialProject.id}-title`}
+        onClose={cleanup}
+        onCancel={(event) => {
+          event.preventDefault();
+          close();
+        }}
+        onKeyDown={(event) => {
+          if (event.key !== "Tab") return;
+          const controls = Array.from(
+            event.currentTarget.querySelectorAll<HTMLElement>(
+              'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+            ),
+          ).filter((element) => element.getClientRects().length > 0);
+          const first = controls[0];
+          const last = controls.at(-1);
+          if (!first) {
+            event.preventDefault();
+            return;
+          }
+          if (
+            event.shiftKey &&
+            (document.activeElement === first ||
+              document.activeElement === event.currentTarget)
+          ) {
+            event.preventDefault();
+            last?.focus();
+          } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first.focus();
+          }
+        }}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) {
+            const rect = event.currentTarget.getBoundingClientRect();
+            if (
+              event.clientX < rect.left ||
+              event.clientX > rect.right ||
+              event.clientY < rect.top ||
+              event.clientY > rect.bottom
+            )
+              close();
+          }
         }}
       >
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute top-6 right-6 w-9 h-9 flex items-center justify-center rounded-lg border transition-all duration-200 font-bold text-lg"
-          style={{
-            backgroundColor: 'var(--surface)',
-            borderColor: 'var(--border)',
-            color: 'var(--text)',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = 'var(--accent)'
-            e.currentTarget.style.color = 'var(--accent)'
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = 'var(--border)'
-            e.currentTarget.style.color = 'var(--text)'
-          }}
-        >
-          ✕
-        </button>
-
-        {/* Content */}
-        <div className="text-4xl mb-4">{project.icon}</div>
-        <h2 className="font-syne font-black text-2xl mb-1" style={{ color: 'var(--text)' }}>
-          {project.name}
-        </h2>
-        <p className="text-0.78rem uppercase tracking-0.1em mb-6" style={{ color: 'var(--accent)' }}>
-          {project.type}
-        </p>
-        <p className="text-0.87rem leading-1.8 mb-4" style={{ color: 'var(--text2)' }}>
-          {project.description}
-        </p>
-        <p className="text-0.87rem leading-1.8 mb-8" style={{ color: 'var(--text2)' }}>
-          {project.details}
-        </p>
-
-        {/* Features */}
-        <ul className="flex flex-col gap-0 mb-8">
-          {project.features.map((f, i) => (
-            <li
-              key={i}
-              className="flex gap-3 text-0.83rem leading-1.7 py-3 border-b"
-              style={{
-                color: 'var(--text2)',
-                borderColor: 'var(--border)',
-              }}
-            >
-              <span className="mt-0 shrink-0" style={{ color: 'var(--accent3)' }}>
-                ✓
-              </span>
-              {f}
-            </li>
-          ))}
-        </ul>
-
-        {/* Tags */}
-        <div className="flex flex-wrap gap-2">
-          {project.tags.map((tag) => (
-            <span
-              key={tag}
-              className="text-0.75rem px-3 py-1.5 rounded-lg border"
-              style={{
-                backgroundColor: 'var(--surface)',
-                borderColor: 'var(--border)',
-                color: 'var(--text3)',
-              }}
-            >
-              {tag}
+        <div className="dialog-top">
+          <div>
+            <span className="eyebrow">SELECTED WORK / TESTING APPROACH</span>
+            <span className="dialog-count">
+              0{selected + 1} <span>/ 0{projects.length}</span>
             </span>
-          ))}
+          </div>
+          <button
+            className="icon-button"
+            aria-label="Close project details"
+            autoFocus
+            onClick={close}
+          >
+            <X size={22} />
+          </button>
         </div>
-      </div>
-
-      <style jsx>{`
-        @keyframes scaleIn {
-          from {
-            transform: scale(0.95) translateY(20px);
-            opacity: 0;
-          }
-          to {
-            transform: scale(1) translateY(0);
-            opacity: 1;
-          }
-        }
-      `}</style>
-    </div>
-  )
+        <div
+          className="dialog-body"
+          ref={body}
+          tabIndex={0}
+          role="region"
+          aria-label="Project detail content"
+        >
+          <div className="dialog-content" key={project.id}>
+            <h2 id={`${initialProject.id}-title`}>{project.name}</h2>
+            <p className="dialog-category">{project.category}</p>
+            <p className="dialog-platform">{project.platform}</p>
+            <div className="dialog-section">
+              <h3>Product context</h3>
+              <p>{project.context}</p>
+            </div>
+            <div className="dialog-section">
+              <h3>My role</h3>
+              <p>
+                {project.role}. My work focused on testing the product and its
+                user journeys.
+              </p>
+            </div>
+            <div className="dialog-columns">
+              <div className="dialog-section">
+                <h3>Verified testing scope</h3>
+                <ul>
+                  {project.scope.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+              <div className="dialog-section">
+                <h3>Key user journeys</h3>
+                <ul>
+                  {project.journeys.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            <div className="dialog-section">
+              <h3>Testing approach</h3>
+              <p>{project.approach}</p>
+            </div>
+            <div className="illustrative-scenario">
+              <span className="mini-label">ILLUSTRATIVE TESTING SCENARIO</span>
+              <p>{project.scenario}</p>
+              <small>
+                An example of how to examine this journey; not a reported defect
+                or measured outcome.
+              </small>
+            </div>
+          </div>
+        </div>
+        <div className="dialog-footer" aria-label="Browse selected projects">
+          <button
+            className="project-browse"
+            onClick={() => browse(-1)}
+            aria-label="Previous project"
+          >
+            <ArrowLeft size={17} aria-hidden="true" />
+            <span>
+              <small>PREVIOUS PROJECT</small>
+              {projects[(selected - 1 + projects.length) % projects.length].name}
+            </span>
+          </button>
+          <button
+            className="project-browse"
+            onClick={() => browse(1)}
+            aria-label="Next project"
+          >
+            <span>
+              <small>NEXT PROJECT</small>
+              {projects[(selected + 1) % projects.length].name}
+            </span>
+            <ArrowRight size={17} aria-hidden="true" />
+          </button>
+        </div>
+        <p className="sr-only" role="status">
+          {announcement}
+        </p>
+      </dialog>
+    </>
+  );
 }

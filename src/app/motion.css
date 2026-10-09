@@ -1,0 +1,524 @@
+/* Shared patterns: feedback, selection, fixed-size panel switches, and entrance. */
+.hero-label,
+.hero h1,
+.hero-description,
+.hero-actions,
+.hero-aside,
+.hero .location {
+  animation: entrance var(--motion-entrance) var(--ease) backwards;
+}
+.hero h1 {
+  animation-delay: var(--motion-stagger);
+}
+.hero-description {
+  animation-delay: calc(var(--motion-stagger) * 2);
+}
+.hero-actions {
+  animation-delay: calc(var(--motion-stagger) * 3);
+}
+.hero-aside {
+  animation-delay: calc(var(--motion-stagger) * 4);
+}
+.hero-actions:focus-within,
+.hero-aside:focus-within {
+  animation: none;
+}
+.section-entered {
+  animation: entrance var(--motion-entrance) var(--ease) backwards;
+  animation-delay: calc(var(--reveal-order, 0) * var(--motion-stagger));
+}
+.section-entered:focus-within {
+  animation: none;
+}
+@keyframes entrance {
+  from {
+    opacity: 0.45;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sliding-indicator {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  opacity: 0;
+  transform-origin: left top;
+  transition:
+    transform var(--motion-state) var(--ease),
+    width var(--motion-state) var(--ease),
+    opacity var(--motion-feedback);
+}
+.sliding-indicator[data-ready] {
+  opacity: 1;
+}
+.desktop-links {
+  position: relative;
+}
+.nav-indicator {
+  background: var(--accent);
+  border-radius: 2px;
+}
+.site-header {
+  transition:
+    border-color var(--motion-state),
+    box-shadow var(--motion-state);
+}
+.site-header[data-scrolled="true"] {
+  border-color: #c2cdc4;
+  box-shadow: 0 3px 12px #252b2906;
+}
+.menu-icon {
+  display: flex;
+  animation: icon-enter var(--motion-feedback) var(--ease);
+}
+
+.workflow-steps {
+  position: relative;
+  isolation: isolate;
+}
+.workflow-step button {
+  z-index: 2;
+  background: var(--surface);
+}
+.workflow-indicator {
+  z-index: 1;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  background: var(--accent-soft);
+}
+.workflow-steps:has(.workflow-indicator[data-ready])
+  .workflow-step
+  button.selected {
+  background: transparent;
+  border-color: transparent;
+}
+.step-icon {
+  transition:
+    background var(--motion-state),
+    color var(--motion-state),
+    border-color var(--motion-state);
+}
+.step-arrow {
+  opacity: 0;
+  transform: translate(-3px, 3px);
+  transition:
+    opacity var(--motion-feedback),
+    transform var(--motion-feedback) var(--ease);
+}
+.selected .step-arrow {
+  opacity: 1;
+  transform: translate(0, 0);
+}
+.step-connector {
+  position: relative;
+  z-index: 2;
+  background: var(--surface);
+}
+.workflow-path {
+  position: absolute;
+  top: 33px;
+  bottom: 33px;
+  left: 29px;
+  width: 2px;
+  height: calc(100% - 66px);
+  z-index: 0;
+  overflow: visible;
+}
+.path-base {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+.path-progress {
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  stroke-dasharray: 100;
+  transition: stroke-dashoffset var(--motion-state) var(--ease);
+}
+.workflow-explanation {
+  min-height: 0;
+}
+.walkthrough-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+.small-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--accent);
+  font-size: 10px;
+  min-height: 44px;
+  padding: 6px 9px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  transition:
+    background var(--motion-feedback),
+    transform var(--motion-feedback) var(--ease),
+    border-color var(--motion-feedback);
+}
+.small-control:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+.small-control:active {
+  transform: translateY(1px);
+}
+.reset-control {
+  border-color: transparent;
+}
+.workflow-hint {
+  margin-top: 8px;
+}
+.walkthrough-feedback {
+  min-height: 15px;
+  margin-top: 5px;
+  font-size: 10px;
+  line-height: 1.5;
+  color: var(--accent);
+}
+
+.state-panels {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+.state-panel {
+  min-width: 0;
+  grid-area: 1 / 1;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-4px);
+  transition:
+    opacity var(--motion-feedback) var(--ease),
+    transform var(--motion-state) var(--ease),
+    visibility 0s linear var(--motion-state);
+}
+.state-panel[data-active="true"] {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+  transition:
+    opacity var(--motion-feedback) var(--ease) 60ms,
+    transform var(--motion-state) var(--ease),
+    visibility 0s;
+}
+.scenario-options {
+  position: relative;
+  isolation: isolate;
+}
+.scenario-indicator {
+  background: var(--accent);
+  border-radius: 4px;
+  z-index: 0;
+}
+.scenario-options button {
+  position: relative;
+  z-index: 1;
+  transition:
+    color var(--motion-state),
+    border-color var(--motion-state),
+    transform var(--motion-feedback);
+}
+.scenario-options:has(.scenario-indicator[data-ready]) button.selected {
+  background: transparent;
+  border-color: transparent;
+}
+.scenario-options button:active {
+  transform: scale(0.985);
+}
+.scenario-detail {
+  min-height: 0;
+}
+.scenario-input {
+  min-height: 232px;
+}
+.demo-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 14px;
+}
+.demo-field {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 10px;
+  min-height: 108px;
+}
+.demo-field .mini-label {
+  font-size: 9px;
+}
+.demo-field p.field-value {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+  margin-top: 4px;
+}
+.demo-field p.field-message {
+  font-size: 10px;
+  line-height: 1.55;
+  margin-top: 8px;
+  min-height: 32px;
+}
+.field-attention {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.field-attention p.field-message {
+  color: var(--accent);
+  font-weight: 550;
+}
+.scenario-input .scenario-annotation {
+  float: none;
+  display: flex;
+  margin-top: 3px;
+}
+.demo-input-action {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  min-height: 40px;
+  font-size: 10px !important;
+  margin-top: 13px !important;
+}
+.scenario-expectation {
+  min-height: 87px;
+}
+.scenario-assertion code {
+  position: relative;
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+}
+.scenario-assertion code::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: var(--accent);
+}
+.state-panel[data-active="true"] .scenario-assertion code::after {
+  animation: assertion-emphasis var(--motion-entrance) var(--ease);
+}
+@keyframes assertion-emphasis {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  35% {
+    opacity: 0.08;
+  }
+}
+.scenario-why {
+  min-height: 65px;
+}
+.scenario-footer {
+  border-top: 1px solid var(--border);
+  padding: 10px 24px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.scenario-footer .small-control {
+  border-color: transparent;
+  flex-shrink: 0;
+}
+.scenario-footer p {
+  font-size: 10px;
+  line-height: 1.6;
+  color: var(--accent);
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+}
+
+.project-row {
+  transition:
+    background var(--motion-state),
+    border-color var(--motion-state);
+}
+.project-row:hover,
+.project-row:focus-within {
+  border-top-color: var(--accent);
+  background: #f3f5ef;
+}
+.text-action {
+  transition:
+    color var(--motion-feedback),
+    transform var(--motion-feedback);
+}
+.text-action:hover {
+  gap: 20px;
+}
+.text-action svg,
+.button svg,
+.nav-resume svg,
+.contact-aside svg,
+.contact-email svg,
+.footer-inner a span {
+  transition: transform var(--motion-feedback) var(--ease);
+}
+.text-action:hover svg,
+.text-action:focus-visible svg,
+.button-primary:hover svg,
+.contact-aside a:hover svg,
+.contact-email:hover svg {
+  transform: translate(2px, -2px);
+}
+.button-secondary:hover svg,
+.nav-resume:hover svg {
+  transform: translateY(2px);
+}
+.button:focus-visible svg,
+.nav-resume:focus-visible svg {
+  transform: translateY(-1px);
+}
+.icon-button:active,
+.copy-button:active {
+  transform: translateY(1px);
+}
+.icon-button,
+.copy-button {
+  transition:
+    transform var(--motion-feedback),
+    background var(--motion-feedback);
+}
+.copy-button {
+  min-width: 112px;
+}
+.copy-icon {
+  display: inline-flex;
+  animation: icon-enter var(--motion-feedback) var(--ease);
+}
+.copy-feedback a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.footer-inner a:hover,
+.footer-inner a:focus-visible {
+  color: var(--accent);
+}
+.footer-inner a:hover span {
+  transform: translateY(-2px);
+}
+@keyframes icon-enter {
+  from {
+    opacity: 0.3;
+    transform: rotate(-12deg) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(0) scale(1);
+  }
+}
+
+.project-dialog[open] {
+  animation: dialog-enter var(--motion-state) var(--ease);
+}
+.dialog-content {
+  animation: content-enter var(--motion-feedback) var(--ease);
+}
+@keyframes content-enter {
+  from { opacity: 0.45; }
+  to { opacity: 1; }
+}
+.project-dialog::backdrop {
+  transition: opacity var(--motion-state) var(--ease);
+  animation: backdrop-enter var(--motion-state) var(--ease);
+}
+.project-dialog[data-closing="true"]::backdrop {
+  opacity: 0;
+}
+@keyframes dialog-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes backdrop-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (max-width: 759px) {
+  .mobile-links {
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+      opacity var(--motion-state) var(--ease),
+      transform var(--motion-state) var(--ease),
+      display var(--motion-state) allow-discrete;
+  }
+  .mobile-links[hidden] {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  @starting-style {
+    .mobile-links:not([hidden]) {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+  }
+  .scenario-footer {
+    padding-inline: 18px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .button:hover,
+  .button:active,
+  .icon-button:active,
+  .copy-button:active,
+  .small-control:active,
+  .scenario-options button:active {
+    transform: none !important;
+  }
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .hero-label,
+  .hero h1,
+  .hero-description,
+  .hero-actions,
+  .hero-aside,
+  .hero .location,
+  .section-entered {
+    opacity: 1;
+    transform: none;
+  }
+  .state-panel {
+    transform: none;
+  }
+  .text-action svg,
+  .button svg,
+  .nav-resume svg,
+  .contact-aside svg,
+  .contact-email svg,
+  .footer-inner a span {
+    transform: none !important;
+  }
+  .project-browse svg,
+  .work-preview-links svg {
+    transform: none !important;
+  }
+}

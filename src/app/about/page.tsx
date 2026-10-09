@@ -1,11 +1,5 @@
-import About from '@/components/About'
+import { redirect } from "next/navigation";
 
 export default function AboutPage() {
-  return (
-    <div style={{ backgroundColor: 'var(--bg)' }}>
-      <div style={{ paddingTop: '120px' }}>
-        <About />
-      </div>
-    </div>
-  )
+  redirect("/#about");
 }

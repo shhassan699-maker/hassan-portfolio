@@ -1,11 +1,5 @@
-import Experience from '@/components/Experience'
+import { redirect } from "next/navigation";
 
 export default function ExperiencePage() {
-  return (
-    <div style={{ backgroundColor: 'var(--bg)' }}>
-      <div style={{ paddingTop: '120px' }}>
-        <Experience />
-      </div>
-    </div>
-  )
+  redirect("/#experience");
 }

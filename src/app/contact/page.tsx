@@ -1,11 +1,5 @@
-import Contact from '@/components/Contact'
+import { redirect } from "next/navigation";
 
 export default function ContactPage() {
-  return (
-    <div style={{ backgroundColor: 'var(--bg)' }}>
-      <div style={{ paddingTop: '120px' }}>
-        <Contact />
-      </div>
-    </div>
-  )
+  redirect("/#contact");
 }

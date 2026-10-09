@@ -1,66 +1,60 @@
-'use client'
-
-import { useEffect } from 'react'
-
+import { ArrowUpRight, MapPin } from "lucide-react";
+import ResumeLink from "./ResumeLink";
+import Workflow from "./Workflow";
+import { projects } from "@/data/portfolio";
 export default function Hero() {
-  useEffect(() => {
-    const reveals = document.querySelectorAll('.reveal')
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry, i) => {
-          if (entry.isIntersecting) {
-            setTimeout(() => entry.target.classList.add('visible'), i * 60)
-            observer.unobserve(entry.target)
-          }
-        })
-      },
-      { threshold: 0.1 }
-    )
-    reveals.forEach((el) => observer.observe(el))
-    return () => {
-      reveals.forEach((el) => observer.unobserve(el))
-    }
-  }, [])
-
   return (
-    <section id="home">
-      <div className="hero-grid"></div>
-      <div className="hero-orb orb1"></div>
-      <div className="hero-orb orb2"></div>
-      <div className="hero-content">
-        <div className="hero-tag">Available for opportunities</div>
-        <h1 className="hero-name">
-          Muhammad Hassan
-          <span className="line2">Sheikh</span>
-        </h1>
-        <p className="hero-title">Software Quality Assurance Engineer</p>
-        <p className="hero-desc">
-          Detail-oriented SQA Engineer with expertise in manual testing, API testing, and mobile QA. Passionate about
-          delivering bug-free, high-quality software across web and mobile platforms.
+    <section id="home" className="hero container" aria-labelledby="hero-title">
+      <div className="hero-copy">
+        <p className="eyebrow hero-label">
+          <span className="label-line" /> MUHAMMAD HASSAN SHEIKH · SQA ENGINEER
         </p>
-        <div className="hero-btns">
-          <a href="#projects" className="btn-primary">
-            View Projects →
+        <h1 id="hero-title">
+          Software quality,
+          <br />
+          examined from
+          <br />
+          <span>every angle.</span>
+        </h1>
+        <p className="hero-description">
+          I’m Muhammad Hassan Sheikh, an SQA Engineer testing web, mobile, APIs,
+          and AI-driven experiences. I turn complex user journeys into clear
+          test coverage and actionable bug reports.
+        </p>
+        <div className="hero-actions">
+          <a href="#work" className="button button-primary">
+            View selected work
+            <ArrowUpRight size={18} aria-hidden="true" />
           </a>
-          <a href="#contact" className="btn-outline">
-            Get In Touch
-          </a>
+          <ResumeLink />
         </div>
-        <div className="hero-stats">
-          <div className="stat-item">
-            <span className="stat-num">15+</span>
-            <span className="stat-label">Projects Tested</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-num">4+</span>
-            <span className="stat-label">Certifications</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-num">1yr+</span>
-            <span className="stat-label">Experience</span>
-          </div>
+        <p className="location">
+          <MapPin size={14} aria-hidden="true" />
+          Islamabad, Pakistan
+        </p>
+      </div>
+      <div className="hero-aside">
+        <Workflow />
+        <p className="aside-caption">
+          <span>01 — 04</span> A considered approach, from first exploration to
+          final verification.
+        </p>
+      </div>
+      <div className="hero-bottom">
+        <div className="work-preview-label">
+          <span className="mini-label">SELECTED TESTING WORK</span>
+          <p>Three products. Different quality challenges.</p>
         </div>
+        <nav className="work-preview-links" aria-label="Jump to a featured project">
+          {projects.map((project, index) => (
+            <a href={`#project-${project.id}`} key={project.id}>
+              <span className="mini-label">0{index + 1}</span>
+              <span>{project.name}</span>
+              <ArrowUpRight size={16} aria-hidden="true" />
+            </a>
+          ))}
+        </nav>
       </div>
     </section>
-  )
+  );
 }
